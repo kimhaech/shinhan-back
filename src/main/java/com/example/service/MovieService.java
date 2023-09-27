@@ -1,65 +1,69 @@
 package com.example.service;
 
+import com.example.domain.entity.Director;
+import com.example.domain.entity.Log;
 import com.example.domain.entity.Movie;
 import com.example.domain.request.MovieRequest;
 import com.example.domain.response.MovieResponse;
+import com.example.repository.LogRepository;
+import com.example.repository.MovieRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class MovieService {
-    private static List<Movie> movies = new ArrayList<>();
+    private final MovieRepository movieRepository;
+    private final LogService logService;
 
-    @PostConstruct // 생성하기 전에 호출한다는 의미
-    public void init() {
-        movies.addAll(List.of(
-                new Movie(1, "코딩스텔라", 2015, LocalDateTime.now()),
-                new Movie(2, "코펜하이머", 2023, LocalDateTime.now()),
-                new Movie(3, "코딩이 운다", 1999, LocalDateTime.now())
-        ));
+    @Transactional
+    public MovieResponse getMovie(long movieId) {
+        Movie movie = movieRepository.findById(movieId).orElseThrow(); // 없음 던짐 -> null 하지 않다.
+
+        return MovieResponse.of(movie);
     }
 
+    @Transactional
     public List<MovieResponse> getMovies() {
-        // 아래와 같은 기능이지만 외부에서 작성하느냐, 내부에서 작성하느냐의 차이
-//        return movies.stream().map(MovieResponse::of).toList(); // lambda 문법
-        return movies.stream().map(movie -> MovieResponse.of(movie)).toList();
-
-//        return movies.stream().map(movie ->
-//                MovieResponse.builder()
-//                    .id(movie.getId())
-//                    .name(movie.getName())
-//                    .productionYear(movie.getProductionYear())
-//                    .build()
-//        ).toList();
+        List<Movie> movies = movieRepository.findByProductionYear(2022);
+        return movies.stream().map(MovieResponse::of).toList();
     }
 
-    public Movie getMovie(long movieId) {
-        return movies.stream()
-                .filter(movie -> movie.getId() == movieId)
-                .toList()
-                .stream()
-                .findFirst()
-                .orElseThrow();
+    @Transactional
+    public void saveMovie(MovieRequest movieRequest) {
+        Movie movie1 = new Movie(movieRequest.getName() + "1", movieRequest.getProductionYear());
+        Movie movie2 = new Movie(movieRequest.getName() + "2", movieRequest.getProductionYear());
+        Movie movie3 = new Movie(movieRequest.getName() + "3", movieRequest.getProductionYear());
+
+        movieRepository.save(movie1);
+        movieRepository.save(movie2);
+        movieRepository.save(movie3);
+
+        logService.saveLog();
     }
 
-    public void createMovie(MovieRequest movieRequest) {
-        Movie movie = new Movie(movies.size() + 1, movieRequest.getName(), movieRequest.getProductionYear()
-                , LocalDateTime.now());
-        movies.add(movie);
-    }
-
+    @Transactional
     public void updateMovie(long movieId, MovieRequest movieRequest) {
-        Movie movie = getMovie(movieId);
-        movie.setName(movieRequest.getName());
-        movie.setProductionYear(movieRequest.getProductionYear());
+        Movie movie = movieRepository.findById(movieId).orElseThrow();
+        movie.setName("변경1");
+        movie.setName("변경2");
+        movie.setName("변경3");
     }
 
-    public void deleteMovie(long movieId) {
-        Movie movie = getMovie(movieId);
-        movies.remove(movie);
+    @Transactional
+    public void removeMovie(long movieId) {
+        Movie movie = movieRepository.findById(movieId).orElseThrow();
+        movieRepository.delete(movie);
     }
 }

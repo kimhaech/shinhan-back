@@ -27,7 +27,7 @@ public class MovieController {
     }
 
     @GetMapping("/v1/movies/{movieId}")
-    public Movie getMovie( // path정보의 movieId 사용
+    public MovieResponse getMovie( // path정보의 movieId 사용
             @PathVariable(value = "movieId") long movieId
     ) {
         return movieService.getMovie(movieId);
@@ -36,7 +36,7 @@ public class MovieController {
     // RequestBody를 통해서 Body를 받을 수 있도록 한다. - Post와 Put에서 사용
     @PostMapping("/v1/movies")
     public void createMovie(@RequestBody MovieRequest movieRequest) {
-        movieService.createMovie(movieRequest);
+        movieService.saveMovie(movieRequest);
     }
 
     @PutMapping("/v1/movies/{movieId}")
@@ -49,6 +49,6 @@ public class MovieController {
     @DeleteMapping("/v1/movies/{movieId}")
     public void deleteMovie(@PathVariable(value = "movieId") long movieId
     ) {
-        movieService.deleteMovie(movieId);
+        movieService.removeMovie(movieId);
     }
 }
