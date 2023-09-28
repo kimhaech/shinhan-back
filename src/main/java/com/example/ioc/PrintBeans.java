@@ -1,14 +1,11 @@
 package com.example.ioc;
 
-import com.example.config.MyConfig;
-import com.example.config.MyConfigProto;
+import com.example.common.config.MyConfig;
+import com.example.common.config.MyConfigProto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor

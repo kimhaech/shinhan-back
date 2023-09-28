@@ -1,10 +1,8 @@
 package com.example.controller;
 
-import com.example.config.MyConfig;
+import com.example.common.config.MyConfig;
 import com.example.service.MyService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
